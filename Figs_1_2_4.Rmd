@@ -1,6 +1,8 @@
 ---
 title: "Figures 1B, Fig2A,B,C and Fig4B,C"
-output: html_notebook
+output:
+  word_document: default
+  html_notebook: default
 ---
 
 
