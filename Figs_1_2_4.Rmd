@@ -210,4 +210,52 @@ pp
 
 ```
 
+Fig 4.D Left
+```{r}
+read_tsv("data_figures/DAR_aroundH3K27ac_Mes_20K.txt")->dar_enh
+
+
+pmd<- ggplot(dar_enh, aes(bin,line))+
+  geom_line(color="blue",size=2) +
+  ylim(0, 200)+
+ #ggtile("DARM normalised counts around H3K27acMes") 
+  #xlab("H3K27ac 20K vicinity") + 
+  xlab(" ")+
+  ylab("normalised DAR counts ")+
+  theme_minimal(base_size=13)
+
+  pmd<-pmd+scale_x_continuous(breaks=seq(-20,20,20),labels=c("-20K", "H3K27ac","20K"))
+   #geom_smooth(size=2, show.legend = FALSE)
+#pmd
+```
+- Fig4. D Right (swapped DARs and H3K27ac)
+
+```{r}
+read_tsv("data_figures/DAR_aroundH3K27ac_Mes_SW_20K.txt")->dar_enh_sw
+
+
+pmds<- ggplot(dar_enh_sw, aes(bin,line))+
+  geom_line(color="blue",size=2) +
+  ylim(0, 200)+
+ #ggtile("DAR  normalised counts around H3K27ac") 
+  #xlab("H3K27ac 20K vicinity") + ylab("normalised DAR counts, swapped")+
+  xlab(" ")+
+  ylab("normalised DAR counts,swapped ")+
+  theme_minimal(base_size=13)
+
+  pmds<-pmds+scale_x_continuous(breaks=seq(-20,20,20),labels=c("-20K", "H3K27ac","20K"))
+   #geom_smooth(size=2, show.legend = FALSE)
+#pmds
+ 
+
+```
+-Fig4 D together
+```{r}
+
+ # penh<-grid.arrange(pmd, pmds, ncol=1)
+penh<-grid.arrange(pmd, pmds, nrow=1)
+penh
+
+```
+
 
