@@ -217,7 +217,7 @@ Fig 4.D Left
 read_tsv("data_figures/DAR_aroundH3K27ac_Mes_20K.txt")->dar_enh
 
 pmd<- ggplot(dar_enh, aes(bin,line))+
-  geom_line(color="blue",size=2) +
+  geom_line(color="blue",size=1) +
   ylim(0, 200)+
  #ggtile("DARM normalised counts around H3K27acMes") 
   
@@ -235,7 +235,7 @@ read_tsv("data_figures/DAR_aroundH3K27ac_Mes_SW_20K.txt")->dar_enh_sw
 
 
 pmds<- ggplot(dar_enh_sw, aes(bin,line))+
-  geom_line(color="blue",size=2) +
+  geom_line(color="blue",size=1) +
   ylim(0, 200)+
  #ggtile("DAR  normalised counts around H3K27ac") 
   xlab(" ")+
