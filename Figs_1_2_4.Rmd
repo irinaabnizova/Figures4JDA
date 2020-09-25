@@ -170,19 +170,21 @@ head(histTSS_DEG)
 #-------------------histo SEG
 
 ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) + 
-    geom_line(size=1)+
+   #geom_bar(stat='identity',show.legend = FALSE)+
+
+    geom_line(size=1,show.legend = FALSE)+
     scale_colour_manual(values=c("black","orange","yellow"))+
     
-    theme_minimal(base_size=15)+
+    theme_minimal(base_size=14)+
     ylim(0,0.6)+
      #ylab("normalised chromatin access count")+
     xlab(" ") + 
     ylab(" ")+
-   ylab("   Normalised chromatin access")+
+   ylab("              Chromatin Accessibility")+
      #ylab("Normalised per gene Chromat Access count ")+
     theme(legend.title = element_blank())
   
-  ps<-ps+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS", "80K"))
+  ps<-ps+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS SEGs", "80K"))
   
   #ps
   
@@ -191,17 +193,17 @@ ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) +
   
   #---------------------DEG TSS
   
-pm <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqDEG, colour=type_DEG))+ geom_line(size=1)+
+pm <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqDEG, colour=type_DEG))+ geom_line(size=1,show.legend = FALSE)+
   scale_colour_manual(values=c("black","blue","cyan"))+
   #xlim(-80000,80000)+
   theme_minimal(base_size=14)+
   xlab(" ") + 
   ylab(" ")+
- #ylab("Normalised Chromatin Access")+
+ #ylab("Chromatin Accessibility")+
   scale_y_continuous(breaks=seq(-0,0.6,0.2))+
   theme(legend.title = element_blank())
 #pm
-    pm<-pm+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS","80K"))
+    pm<-pm+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS DEGs","80K"))
   
   #--------------------------together
   
