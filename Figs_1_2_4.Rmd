@@ -254,5 +254,40 @@ penh<-grid.arrange(pmd, pmds, nrow=1)
 penh
 
 ```
+-Fig6A  DMR
+```{r}
+dmr_enh<-read_tsv("data_figures/DMR_end_H3k27ac_End_20K_data.txt")
 
+pdmr_end_enh <- ggplot(dmr_enh, aes(x=bin, y=count)) + 
+  geom_line(colour="cyan",size=1,show.legend = FALSE)+
+  theme_classic(base_size=13)+
+  xlab(" ") +
+  ylab("DMR count")
+ 
+  pdmr_end_enh<-pdmr_end_enh+scale_x_continuous(breaks=seq(-10000,10000,10000),labels=c("-10K", "H3K27ac","10K"))
+ #pdmr_end_enh
 
+```
+- DMR around DAR, Endoderm
+```{r}
+
+dmr_enh<-read_tsv("data_figures/DMR_end_DAR_End_20K_data.txt")
+pdmr_end_dar <- ggplot(dmr_dar, aes(x=bin, y=count)) + 
+  geom_line(colour="black",size=1,show.legend = FALSE)+
+  theme_classic(base_size=13)+
+  #xlab("H3K27ac vicinity") +
+  ylab("DMR count")+
+  xlab("")
+ 
+  pdmr_end_dar<-pdmr_end_dar+scale_x_continuous(breaks=seq(-10000,10000,10000),labels=c("-10K", "DAR","10K"))
+ #pdmr_end
+
+```
+-Fig6A together
+```{r}
+
+ 
+pdmr<-grid.arrange(pdmr_end_dar, pdmr_end_enh, nrow=1)
+pdmr
+
+```
