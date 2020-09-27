@@ -1,5 +1,5 @@
 ---
-title: "Figures 1B, Fig2A,B,C and Fig4B,C, Fig6A"
+title: "Figures 1B, Fig2A,B,C and Fig4B,C, Fig6A, B"
 output:
   word_document: default
   html_notebook: default
@@ -290,4 +290,22 @@ pdmr_end_dar <- ggplot(dmr_dar, aes(x=bin, y=count)) +
 pdmr<-grid.arrange(pdmr_end_dar, pdmr_end_enh, nrow=1)
 pdmr
 
+```
+- Ect En Mes Enh between
+```{r}
+
+read_excel("data_figures/motifs_F_ect.xlsx")->Li_ect
+read_excel("data_figures/motifs_F_end.xlsx")->Li_end
+read_excel("data_figures/motifs_F_mes.xlsx")->Li_mes
+
+listik_a5_EcEnM2=c(Li_ect,Li_end,Li_mes)
+#listik_w_dar_dmr_Ec2=c(vwec2,vdarec2,vdmrec2)
+upset(fromList(listik_a5_EcEnM2),empty.intersections = "on")
+
+```
+-get distinct refined elements in final intersections
+```{r}
+overlapIntersect<-calculate.overlap(listik_a5_EcEnM2)
+# intersection of Enh DAR DMR, a5
+overlapIntersect
 ```
