@@ -1,5 +1,5 @@
 ---
-title: "Figures 1B, Fig2A,B,C and Fig4B,C, Fig6A, B"
+title: "Figures 1B, Fig2A,B,C, Fig3 B, C, and Fig4B,C, Fig6A, B"
 output:
   word_document: default
   html_notebook: default
@@ -19,6 +19,7 @@ library(datasets)
 library(purrr)
 library(ggridges)
 library(UpSetR)
+library(VennDiagram)
 
 ```
 -Figure 1.B 'we noticed that DEGs are more transcriptionally isolated then SEGs'
@@ -322,7 +323,7 @@ pdmr_end_enh <- ggplot(dmr_enh, aes(x=bin, y=count)) +
 - DMR around DAR, Endoderm
 ```{r}
 
-dmr_enh<-read_tsv("data_figures/DMR_end_DAR_End_20K_data.txt")
+dmr_dar<-read_tsv("data_figures/DMR_end_DAR_End_20K_data.txt")
 pdmr_end_dar <- ggplot(dmr_dar, aes(x=bin, y=count)) + 
   geom_line(colour="black",size=1,show.legend = FALSE)+
   theme_classic(base_size=13)+
@@ -356,6 +357,7 @@ upset(fromList(listik_a5_EcEnM2),empty.intersections = "on")
 ```
 -get distinct refined elements in final intersections
 ```{r}
+library(VennDiagram)
 overlapIntersect<-calculate.overlap(listik_a5_EcEnM2)
 # intersection of Enh DAR DMR, a5
 overlapIntersect
