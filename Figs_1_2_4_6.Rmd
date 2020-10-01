@@ -362,3 +362,27 @@ overlapIntersect<-calculate.overlap(listik_a5_EcEnM2)
 # intersection of Enh DAR DMR, a5
 overlapIntersect
 ```
+-KS test
+```{r}
+
+xy<-read_tsv("data_figures/frac_DEG_SEG_TAD.txt")
+#xy
+
+x <- xy$deg
+y <- xy$seg
+#x<-rnorm(10)
+
+#y<-rnorm(10,2)
+
+# Do x and y come from the same distribution?
+#ks.test(x, y)
+ks.test(x,y, alt='less')
+
+plot(ecdf(x), xlim = range(c(x, y)))
+plot(ecdf(y), add = TRUE, lty = "dashed")
+t.test(x, y, alternative = "g")
+wilcox.test(x, y, alternative = "g")
+ks.test(x, y, alternative = "l")
+
+```
+
