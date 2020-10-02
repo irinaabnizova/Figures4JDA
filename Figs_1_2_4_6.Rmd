@@ -247,7 +247,7 @@ ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) +
     geom_line(size=1,show.legend = FALSE)+
     scale_colour_manual(values=c("black","orange","yellow"))+
     
-    theme_minimal(base_size=14)+
+    theme_classic2(base_size=14)+
     ylim(0,0.6)+
      #ylab("normalised chromatin access count")+
     xlab(" ") + 
@@ -258,7 +258,7 @@ ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) +
   
   ps<-ps+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS SEGs", "80K"))
   
-  #ps
+  ps
   
   #pp<-grid.arrange(pe, pm, ps, ncol=1)
   #pp + theme(legend.title = element_blank())
@@ -268,15 +268,15 @@ ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) +
 pm <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqDEG, colour=type_DEG))+ geom_line(size=1,show.legend = FALSE)+
   scale_colour_manual(values=c("black","blue","cyan"))+
   #xlim(-80000,80000)+
-  theme_minimal(base_size=14)+
+  theme_classic2(base_size=14)+
   xlab(" ") + 
-  ylab(" ")+
- #ylab("Chromatin Accessibility")+
-  scale_y_continuous(breaks=seq(-0,0.6,0.2))+
-  theme(legend.title = element_blank())
+  #ylab("Chromatin  ")+
+ ylab("Chromatin Accessibility")+
+  scale_y_continuous(breaks=seq(-0,0.6,0.2))
+  #theme(legend.title = element_blank())
 #pm
     pm<-pm+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS DEGs","80K"))
-  
+  pm
   #--------------------------together
   
   pp<-grid.arrange(pm, ps, ncol=1)
@@ -295,7 +295,7 @@ pmd<- ggplot(dar_enh, aes(bin,line))+
   
   xlab(" ")+
   ylab("normalised DAR counts ")+
-  theme_minimal(base_size=13)
+  theme_classic2(base_size=14)
 
   pmd<-pmd+scale_x_continuous(breaks=seq(-20,20,20),labels=c("-20K", "H3K27ac","20K"))
   
@@ -522,11 +522,11 @@ read_excel("data_figures/motifs_F_mes.xlsx")->Li_mes
 listik_a5_EcEnM2=c(Li_ect,Li_end,Li_mes)
 #listik_w_dar_dmr_Ec2=c(vwec2,vdarec2,vdmrec2)
 ur<-upset(fromList(listik_a5_EcEnM2),empty.intersections = "on")
-
+ur
 #together
 
-dmr_ur<-grid.arrange(pdmr, ur, nrow=1)
-dmr_ur
+#dmr_ur<- grid.arrange(pdmr, ur, nrow=1)
+#dmr_ur
 ```
 -get distinct refined elements in final intersections
 ```{r}
