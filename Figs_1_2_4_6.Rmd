@@ -52,10 +52,10 @@ read_tsv("data_figures/pw_DEG_histo.txt")->diff
 pdiff<- ggplot(diff, aes (x=GE_diff, y=freq, fill=abs(GE_diff))) +
   geom_bar(stat='identity',show.legend = FALSE)+
   scale_colour_gradient2()+
-  theme_minimal(base_size = 14)+
+  theme_classic2(base_size = 14)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   #ggtitle("A or C")+
-  xlab("Gene expression difference")+
+  xlab("GE difference log2RPKM")+
   ylab("counts")
 pdiff
 
@@ -77,13 +77,22 @@ pp<- ggplot(scat_sim, aes (x=ge_ect,y=ge_mes)) +
   geom_point(data = scat_ect,color="green",size=2)+
   geom_point(data = scat_mes,color="magenta",size=2)+
   ylim(-10, 12)+
-  theme_minimal(base_size = 14)+
+  theme_classic2(base_size = 14)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   #ggtitle("C")+
-  xlab("Gene expression Ect")+
-  ylab("Gene expression Mes")
+  xlab("GE Ectoderm")+
+  ylab("GE Mesoderm")
+
+pp<-pp+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))+scale_y_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 pp
 ```
+-Fig2AB
+```{r}
+ppp <-
+  ggarrange( pdiff, pp, labels = c("A","B"))
+ppp
+```
+
 -Fig2. C
 ```{r}
 
@@ -92,11 +101,14 @@ read_tsv("data_figures/GE_long_SEG.txt")->Sim
 
 pd4<- ggplot(Sim, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges(
        aes(point_fill = layer, point_shape = layer),
-       alpha = .4) +
-       xlab("Gene expression")+
+       alpha = .4, show.legend = F) +
+       theme_classic2()+
+       #xlab("Gene expression")+
+       xlab("GE, log2RPKM")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
 #pd4
+pd4<-pd4+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 
 #-------------------------------all genes
 
@@ -105,23 +117,28 @@ read_tsv("data_figures/GE_long_ALL.txt")->ALL
 
 pd1<- ggplot(ALL, aes(x = v, y = layers,fill=layers)) +    geom_density_ridges(
        aes(point_fill = layers, point_shape = layers),
-       alpha = .4) +
+       alpha = .4, show.legend = F) +
+       theme_classic2()+
        xlab(" ")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
  #, labels = c("female", "male","unknown")) 
 #pd1
+pd1<-pd1+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 
 #---------------------DifEct
 read_tsv("data_figures/GE_long_DifEct.txt")->DifEct
 
 pd2<- ggplot(DifEct, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges(
        aes(point_fill = layer, point_shape = layer),
-       alpha = .4) +
+       alpha = .4,show.legend = F) +
+       theme_classic2()+
        xlab(" ")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
- #, labels = c("female", "male","unknown")) 
+  
+pd2<-pd2+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
+ 
 #pd2
 
 #--------------------Dif Mes
@@ -129,19 +146,22 @@ read_tsv("data_figures/GE_long_DifMes.txt")->DifMes
 
 pd3<- ggplot(DifMes, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges(
        aes(point_fill = layer, point_shape = layer),
-       alpha = .4) +
-       xlab("Gene expression")+
-  ylab(" ")+
+       alpha = .4, show.legend = F) +
+       theme_classic2()+
+       xlab("GE, log2RPKM")+
+       ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
- #, labels = c("female", "male","unknown")) 
+ 
 #pd3
+pd3<-pd3+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 ```
 Fig2 C: arrange densities together
 ```{r}
-pE <-
-  ggarrange( pd1, pd2, pd3, pd4, labels = c("C1","C2","C3", "C4"),
-           common.legend = TRUE, legend = "bottom"
-  )
+#pE <-
+  #ggarrange( pd1, pd2, pd3, pd4, labels = c("C1","C2","C3", "C4"),
+           #common.legend = TRUE, legend = "bottom"
+  #)
+pE <-  ggarrange( pd1, pd2, pd3, pd4, labels = c("C1","C2","C3", "C4"))#+theme_classic2(base_size = 12)
 pE
 ```
 -Figure 3 TADs and genes
