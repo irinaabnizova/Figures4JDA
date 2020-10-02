@@ -521,8 +521,12 @@ read_excel("data_figures/motifs_F_mes.xlsx")->Li_mes
 
 listik_a5_EcEnM2=c(Li_ect,Li_end,Li_mes)
 #listik_w_dar_dmr_Ec2=c(vwec2,vdarec2,vdmrec2)
-upset(fromList(listik_a5_EcEnM2),empty.intersections = "on")
+ur<-upset(fromList(listik_a5_EcEnM2),empty.intersections = "on")
 
+#together
+
+dmr_ur<-grid.arrange(pdmr, ur, nrow=1)
+dmr_ur
 ```
 -get distinct refined elements in final intersections
 ```{r}
