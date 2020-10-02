@@ -80,14 +80,14 @@ pp<- ggplot(scat_sim, aes (x=ge_ect,y=ge_mes)) +
   theme_classic2(base_size = 14)+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   #ggtitle("C")+
-  xlab("GE Ectoderm")+
+  xlab("GE Ectoderm log2RPKM")+
   ylab("GE Mesoderm")
 
 pp<-pp+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))+scale_y_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 pp
 ```
 -Fig2AB
-```{r}
+```{r, fig.width = 8}
 ppp <-
   ggarrange( pdiff, pp, labels = c("A","B"))
 ppp
@@ -102,7 +102,7 @@ read_tsv("data_figures/GE_long_SEG.txt")->Sim
 pd4<- ggplot(Sim, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges(
        aes(point_fill = layer, point_shape = layer),
        alpha = .4, show.legend = F) +
-       theme_classic2()+
+       theme_classic2(base_size = 14)+
        #xlab("Gene expression")+
        xlab("GE, log2RPKM")+
        ylab(" ")+
@@ -118,7 +118,7 @@ read_tsv("data_figures/GE_long_ALL.txt")->ALL
 pd1<- ggplot(ALL, aes(x = v, y = layers,fill=layers)) +    geom_density_ridges(
        aes(point_fill = layers, point_shape = layers),
        alpha = .4, show.legend = F) +
-       theme_classic2()+
+       theme_classic2(base_size = 14)+
        xlab(" ")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
@@ -132,7 +132,7 @@ read_tsv("data_figures/GE_long_DifEct.txt")->DifEct
 pd2<- ggplot(DifEct, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges(
        aes(point_fill = layer, point_shape = layer),
        alpha = .4,show.legend = F) +
-       theme_classic2()+
+       theme_classic2(base_size = 14)+
        xlab(" ")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
@@ -147,7 +147,7 @@ read_tsv("data_figures/GE_long_DifMes.txt")->DifMes
 pd3<- ggplot(DifMes, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges(
        aes(point_fill = layer, point_shape = layer),
        alpha = .4, show.legend = F) +
-       theme_classic2()+
+       theme_classic2(base_size = 14)+
        xlab("GE, log2RPKM")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
@@ -156,7 +156,7 @@ pd3<- ggplot(DifMes, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges
 pd3<-pd3+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 ```
 Fig2 C: arrange densities together
-```{r}
+```{r,fig.width=8}
 #pE <-
   #ggarrange( pd1, pd2, pd3, pd4, labels = c("C1","C2","C3", "C4"),
            #common.legend = TRUE, legend = "bottom"
@@ -326,6 +326,155 @@ penh<-grid.arrange(pmd, pmds, nrow=1)
 penh
 
 ```
+-Fig5A Left (DEG-Mes here)
+```{r}
+scatDEG <- read_tsv("data_figures/scatter_Mes_80K_data.txt")
+#scatDEG
+v1<-scatDEG$V1
+v2<-scatDEG$V2
+v3<-scatDEG$V3
+dd1 <- data.frame(count=v1,line=v2)
+#head(ds1)
+
+dd2 <- data.frame(count=v1,line=v3)
+#head(ds2)
+
+#-----------------plot with superimposing
+pd<- ggplot(dd1, aes(count,line))+
+  geom_line(color="blue",size=2) +
+  geom_point(data = dd2, color = "blue", size=2) +# re-define data and overwrite top layer inheritance
+  #geom_point(data = df3, color = "green", size=3) +# re-define data and overwrite top layer inheritance
+  xlim(0, 25)+
+  #ggtitle("Correlation of frequency of diff accessible regions\n and average gene expression, r=0.07, TSS vicinity=80K \n Similarly High Expressed") +
+  xlab("DAR counts") + ylab(" ")+
+  ylab("average GE")+
+  ylim(-3,6)+
+  theme_classic2(base_size=14)
+#pd
+pd<-pd+scale_x_continuous(breaks=seq(0,20,10),labels=c("0", "10","20"))
+pd
+
+```
+-Fig 5A middle (SEGs scatter)
+```{r}
+scatSEG <- read_tsv("data_figures/scatter_Sim_80K_data.txt")
+
+#--------------------make two different data frames for re-defining on a plot further (to superimpose plots)
+
+v1<-scatSEG$V1
+v2<-scatSEG$V2
+v3<-scatSEG$V3
+ds1 <- data.frame(count=v1,line=v2)
+#head(ds1)
+
+ds2 <- data.frame(count=v1,line=v3)
+#head(ds2)
+
+#-----------------plot with superimposing
+ps<- ggplot(ds1, aes(count,line))+
+  geom_line(color="orange",size=2) +
+  geom_point(data = ds2, color = "orange", size=2) +# re-define data and overwrite top layer inheritance
+    xlim(0, 25)+
+  #ggtitle("Correlation of frequency of similarly accessible regions\n and average gene expression, r=0.07, TSS vicinity=80K \n Similarly High Expressed") +
+  xlab("SAR counts") + ylab(" ")+
+  #ylab("gene expression")+
+  ylim(-3,6)+
+  theme_classic2(base_size=13)
+ps
+  ps<-ps+scale_x_continuous(breaks=seq(0,20,10),labels=c("0", "10","20"))
+ps
+
+
+```
+
+-Figure5B
+-fig5B Left
+```{r}
+read_tsv("C:/Users/ia1/Documents/R_work/Figures4JDA/data_figures/scatter_line_Mes_80K_H3K27ac_data2.txt")->dm1
+read_tsv("C:/Users/ia1/Documents/R_work/Figures4JDA/data_figures/scatter_point_Mes_80K_H3K27ac_data2.txt")->dm2
+
+
+ppd<- ggplot(dm1, aes(count,line))+
+  geom_line(color="cyan",size=2) +
+  geom_point(data = dm2, color = "cyan", size=2) +# re-define data and overwrite top layer inheritance
+  
+  xlim(0, 15)+
+  #ggtitle("Correlation of frequency of similarly accessible regions\n and average gene expression, r=0.07, TSS vicinity=80K \n Similarly High Expressed") +
+  xlab("H3K27ac counts") + ylab("average GE ")+
+  theme_classic2(base_size=14)
+#ppd
+
+```
+-Fig 5A left middle together
+```{r}
+
+pscat<-grid.arrange(pd, ps, nrow=1)
+pscat
+
+```
+-Fig5A right
+```{r}
+read_tsv("data_figures/vic_corrEct_corrMes.txt")->vic_corr
+
+vic_corr%>%
+  mutate(set='DEG_DAR')%>%
+  filter(layer=='Mes')->vic_corr1
+  head(vic_corr1)
+## # A tibble: 6 x 3
+##   vicinity  corr layer
+##      <dbl> <dbl> <chr>
+## 1       10  0.53 Ect  
+## 2       20  0.75 Ect  
+## 3       40  0.84 Ect  
+## 4       80  0.67 Ect  
+## 5      120  0.6  Ect  
+## 6      160  0.71 Ect
+pc <- ggplot(vic_corr1, aes(x=vicinity, y=corr, colour=set)) + 
+  geom_line(size=0.5,show.legend = FALSE)+
+  scale_colour_manual(values=c("blue"))+
+
+  theme_classic(base_size=14)+
+
+  #ggtitle("Frequency of Differentially Chromatin-Accessible Regions \n in TSS vicinity (80K), DEG upregulated genes") +
+  xlab("TSS vicinity") + ylab("correlation")+
+ #geom_smooth(size=2, show.legend = FALSE)
+ geom_smooth(size=2,show.legend = FALSE)
+  
+  pc<-pc+scale_x_continuous(breaks=seq(0,300,100),labels=c("TSS", "100K","200K","300K"))
+  pc
+  
+#pc+theme(panel.background = element_rect(fill = "white", colour = "grey50"))
+  grid.arrange(pd,ps, pc,nrow=1)
+
+```
+
+
+-Fig5B Right
+-
+```{r}
+read_tsv("C:/Users/ia1/Documents/R_work/older_figs/fig3_Jan/vic_corrEct_corrMes_H3K27ac.txt")->vic_corr
+head(vic_corr)
+
+vic_corr%>%
+  filter(layer=='Mes')->vic_corrM
+
+pcc <- ggplot(vic_corrM, aes(x=vicinity, y=corr, colour=layer)) + 
+  #geom_line(size=1)+
+  scale_colour_manual(values=c("cyan","magenta"))+
+
+  theme_classic2(base_size=15)+
+
+  #ggtitle("Frequency of Differentially Chromatin-Accessible Regions \n in TSS vicinity (80K), Mesoderm upregulated genes") +
+  xlab("TSS vicinity, KB") + ylab("correlation")+
+  geom_smooth(size=2, show.legend = FALSE)
+
+pcc<-pcc+scale_x_continuous(breaks=seq(0,300,100),labels=c("TSS", "100K","200K","300K"))
+  
+  #pcc-----------------together
+  grid.arrange(ppd, pcc,nrow=1)
+
+```
+
 -Fig6A  DMR
 ```{r}
 dmr_enh<-read_tsv("data_figures/DMR_end_H3k27ac_End_20K_data.txt")
@@ -337,7 +486,7 @@ pdmr_end_enh <- ggplot(dmr_enh, aes(x=bin, y=count)) +
   ylab("DMR count")
  
   pdmr_end_enh<-pdmr_end_enh+scale_x_continuous(breaks=seq(-10000,10000,10000),labels=c("-10K", "H3K27ac","10K"))
- #pdmr_end_enh
+ pdmr_end_enh
 
 ```
 - DMR around DAR, Endoderm
