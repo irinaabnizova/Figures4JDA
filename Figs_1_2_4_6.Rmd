@@ -1,16 +1,18 @@
 ---
 title: "Figures 1B, Fig2A,B,C, Fig3 B, C, and Fig4B,C, Fig6A, B"
 output:
-  word_document: default
+  html_document:
+    df_print: paged
   html_notebook: default
+  word_document: default
 ---
 
 
 
-```{r}
+```{r include=FALSE}
 library(reshape2)
 library(ggplot2)
-library(tidyverse)
+# library(tidyverse)
 library(gridExtra)
 library(tidyr)
 library(ggpubr)
@@ -21,24 +23,50 @@ library(ggridges)
 library(UpSetR)
 library(VennDiagram)
 
+require(scales)
+require(cowplot)
+require(RColorBrewer)
+
+# standardize theme
+main <- theme_minimal() + theme(axis.title.y = element_text(size=14), axis.title.x = element_text(size=14), text = element_text(size=12), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank()) 
+colorcode = "Dark2"
+dotsize = .7
+linesize = .3
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00", "#CC79A7")
+tritPalette <- c("#519FAC", "#597C86", "#C84B48","#d8b365", "#f5f5f5", "#5ab4ac", "#EE6867", "#F4AAB2", "#B48B25", "#807271")
 ```
+
+
+```{r echo=FALSE}
+barplot(rep(1, length(cbPalette)), col=cbPalette, labels = FALSE)
+barplot(rep(1, length(tritPalette)), col=tritPalette, labels = FALSE)
+```
+
 -Figure 1.B 'we noticed that DEGs are more transcriptionally isolated then SEGs'
 ```{r}
-read_tsv("data_figures/DEG_SEG_dist_thrE.txt")->DEG_SEG_dist_thr
+DEG_SEG_dist_thr <- read.delim2("data_figures/DEG_SEG_dist_thrE.txt", stringsAsFactors = F)
+
+DEG_SEG_dist_thr$dist <- 10^as.numeric(DEG_SEG_dist_thr$log.dist)
 
 DEG_SEG_dist_thr%>%
-    ggplot(aes(set_ds, log.dist, fill = set_ds)) +
+    ggplot(aes(set_ds, dist, fill = set_ds)) +
     geom_violin(draw_quantiles = 0.5) +
     theme_bw(base_size = 16) +
-    scale_fill_manual(values = c("blue","yellow")) +
-        ylab("dist2nearest expr gene (log10 bp)\n") +
-    xlab(element_blank()) +
-    theme(axis.title.y = element_text(size = 14), plot.title = element_text(size = 14, hjust = 0.5)) + 
-    ggtitle("dist for DEG SEG") -> v2ds.deg
+    scale_fill_manual(values = cbPalette[1:2]) +
+        # ylab("dist2nearest expr gene (bp)\n") +
+    ylab("bp to nearest expr gene") +
+    xlab(element_blank()) + main +  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x), labels = trans_format("log10", math_format(10^.x))) +
+    theme(axis.title.y = element_text(size = 14), 
+          # plot.title = element_text(size = 14, hjust = 0.5),
+          legend.position = "none") -> # + 
+    # ggtitle("dist for DEG SEG") 
+  v2ds.deg
   v2ds.deg #all thr dumpted together
 
-v2ds.deg+facet_grid(~thrGE)+ theme(legend.position = "none")+theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) ->v02
-v02+ggtitle("distances in  DEG SEG per GE threshold")
+v2ds.deg + 
+  facet_grid(~thrGE) +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank(), axis.text.x = element_blank()) ->v02
+# v02+ggtitle("distances in  DEG SEG per GE threshold")
 #------------------------no title
 v02+ggtitle("")
 ```
@@ -46,51 +74,82 @@ v02+ggtitle("")
 'show how we computed DEGs and SEGs'
 ```{r}
 #---------------------Fig2.A
-read_tsv("data_figures/pw_DEG_histo.txt")->diff
+diff <- read.delim2("data_figures/pw_DEG_histo.txt", stringsAsFactors = F)
+diff$GE_diff <-  2^as.numeric(diff$GE_diff)
+diff$freq <- as.numeric(diff$freq)
 #head(diff)
 
-pdiff<- ggplot(diff, aes (x=GE_diff, y=freq, fill=abs(GE_diff))) +
-  geom_bar(stat='identity',show.legend = FALSE)+
-  scale_colour_gradient2()+
-  theme_classic2(base_size = 14)+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+# pdiff<- ggplot(diff, aes (x=GE_diff, y=freq, fill=abs(GE_diff))) +
+pdiff<- 
+  ggplot(diff, aes (x=GE_diff, y=freq)) +
+  geom_bar(stat='identity',show.legend = FALSE, width = .1) + 
+  # scale_colour_gradient2() +
+  # theme_classic2(base_size = 14) +
+  # theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   #ggtitle("A or C")+
-  xlab("GE difference log2RPKM")+
-  ylab("counts")
+  xlab("GE difference (RPKM)")+
+  ylab("counts") + 
+    main + 
+    scale_x_log10(breaks = trans_breaks("log2", function(x) 2^x), labels = trans_format("log2", math_format(2^.x))) +
+    annotate("rect", xmin = 2^-1.5, xmax =  2^1.5, ymin = 0, ymax = Inf, alpha = .5, fill = cbPalette[2]) +
+    annotate("rect", xmin =  min(diff$GE_diff), xmax =  2^-6, ymin = 0, ymax = Inf, alpha = .5, fill = cbPalette[4]) +
+    annotate("rect", xmin =  max(diff$GE_diff), xmax =  2^6, ymin = 0, ymax = Inf, alpha = .5, fill = cbPalette[7])
 pdiff
 
 ```
 -Fig2 B `scatter plots for SEG,  Dect Dmes
 
 ```{r}
-read_tsv("data_figures/scat_sim.txt")->scat_sim
+scat_sim <- read.delim2("data_figures/scat_sim.txt", stringsAsFactors = F)
+scat_sim$ge_ect <- as.numeric(scat_sim$ge_ect)
+scat_sim$ge_end <- as.numeric(scat_sim$ge_end)
+scat_sim$ge_mes <- as.numeric(scat_sim$ge_mes)
 #head(scat_sim)
 
-read_tsv("data_figures/scat_ect.txt")->scat_ect
+
+scat_ect <- read.delim2("data_figures/scat_ect.txt", stringsAsFactors = F)
+scat_ect$ge_ect <- as.numeric(scat_ect$ge_ect)
+scat_ect$ge_end <- as.numeric(scat_ect$ge_end)
+scat_ect$ge_mes <- as.numeric(scat_ect$ge_mes)
 #head(scat_ect)
 
-read_tsv("data_figures/scat_mes.txt")->scat_mes
+scat_mes <- read.delim2("data_figures/scat_mes.txt", stringsAsFactors = F)
+scat_mes$ge_ect <- as.numeric(scat_mes$ge_ect)
+scat_mes$ge_end <- as.numeric(scat_mes$ge_end)
+scat_mes$ge_mes <- as.numeric(scat_mes$ge_mes)
 #head(scat_mes)
 
-pp<- ggplot(scat_sim, aes (x=ge_ect,y=ge_mes)) +
-  geom_point(size=2,color="orange")+
-  geom_point(data = scat_ect,color="green",size=2)+
-  geom_point(data = scat_mes,color="magenta",size=2)+
-  ylim(-10, 12)+
-  theme_classic2(base_size = 14)+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  #ggtitle("C")+
-  xlab("GE Ectoderm log2RPKM")+
-  ylab("GE Mesoderm")
+df <- rbind(
+  scat_sim,
+  scat_ect,
+  scat_mes
+)
+df$ge_ect <- 2^df$ge_ect
+df$ge_mes <- 2^df$ge_mes
 
-pp<-pp+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))+scale_y_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
+pp <- ggplot(df, aes (x=ge_ect,y=ge_mes, colour = gene_type)) +
+  geom_point(alpha = .5) + scale_colour_manual(values = cbPalette[c(4,7,2)], name = "Gene type") + main +
+  # ylim(-10, 12)+
+  # theme_classic2(base_size = 14)+
+  # theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  #ggtitle("C")+
+  xlab("GE Ectoderm") +
+  ylab("GE Mesoderm") +
+  scale_x_log10(breaks = trans_breaks("log2", function(x) 2^x), labels = trans_format("log2", math_format(2^.x))) + 
+  scale_y_log10(breaks = trans_breaks("log2", function(x) 2^x), labels = trans_format("log2", math_format(2^.x))) 
+# +scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))+scale_y_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 pp
 ```
 -Fig2AB
 ```{r, fig.width = 8}
-ppp <-
-  ggarrange( pdiff, pp, labels = c("A","B"))
-ppp
+plot_grid(
+  pdiff, pp,
+  labels = c("A", "B"),
+  nrow = 2, ncol = 2
+)
+# ppp <-
+#   ggarrange( pdiff, pp, labels = c("A","B"))
+# ppp
 ```
 
 -Fig2. C
@@ -122,7 +181,7 @@ pd1<- ggplot(ALL, aes(x = v, y = layers,fill=layers)) +    geom_density_ridges(
        xlab(" ")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
- #, labels = c("female", "male","unknown")) 
+ #, labels = c("female", "male","unknown"))
 #pd1
 pd1<-pd1+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 
@@ -136,9 +195,9 @@ pd2<- ggplot(DifEct, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges
        xlab(" ")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
-  
+
 pd2<-pd2+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
- 
+
 #pd2
 
 #--------------------Dif Mes
@@ -151,7 +210,7 @@ pd3<- ggplot(DifMes, aes(x = GE, y = layer,fill=layer)) +    geom_density_ridges
        xlab("GE, log2RPKM")+
        ylab(" ")+
        scale_fill_manual(values = c("green", "blue","magenta"))
- 
+
 #pd3
 pd3<-pd3+scale_x_continuous(breaks=seq(-10,10,10),labels=c("-10", "0", "10"))
 ```
@@ -175,7 +234,7 @@ read_tsv("data_figures/DEG_SEG_TAD_borders.txt")->dsTAD
 dsTAD %>%
   mutate(DEG=db/(db+dm)) %>%
   mutate(SEG=sm/(sb+sm)) %>%
-  #made one long format out of two columns, their names are other long column of names 
+  #made one long format out of two columns, their names are other long column of names
 gather(key=gene_set, value=frac,DEG,SEG) -> dsTAD1
 #tail(dsTAD1)
 
@@ -188,7 +247,7 @@ pdt<- ggplot(dsTAD1, aes(x = frac, y = gene_set,fill=gene_set)) +    geom_densit
        alpha = .4) +
        xlab("fraction of genes near TAD borders")+
        ylab(" ")+
- 
+
        scale_fill_manual(values = c("blue", "orange"))
  pdt
 
@@ -241,44 +300,44 @@ head(histTSS_DEG)
 
 #-------------------histo SEG
 
-ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) + 
+ps <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqSEG, colour=type_SEG)) +
    #geom_bar(stat='identity',show.legend = FALSE)+
 
     geom_line(size=1,show.legend = FALSE)+
     scale_colour_manual(values=c("black","orange","yellow"))+
-    
+
     theme_minimal(base_size=14)+
     ylim(0,0.6)+
      #ylab("normalised chromatin access count")+
-    xlab(" ") + 
+    xlab(" ") +
     ylab(" ")+
    ylab("              Chromatin Accessibility")+
      #ylab("Normalised per gene Chromat Access count ")+
     theme(legend.title = element_blank())
-  
+
   ps<-ps+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS SEGs", "80K"))
-  
+
   #ps
-  
+
   #pp<-grid.arrange(pe, pm, ps, ncol=1)
   #pp + theme(legend.title = element_blank())
-  
+
   #---------------------DEG TSS
-  
+
 pm <- ggplot(histTSS_DEG, aes(x=TSS_vic, y=freqDEG, colour=type_DEG))+ geom_line(size=1,show.legend = FALSE)+
   scale_colour_manual(values=c("black","blue","cyan"))+
   #xlim(-80000,80000)+
   theme_minimal(base_size=14)+
-  xlab(" ") + 
+  xlab(" ") +
   ylab(" ")+
  #ylab("Chromatin Accessibility")+
   scale_y_continuous(breaks=seq(-0,0.6,0.2))+
   theme(legend.title = element_blank())
 #pm
     pm<-pm+scale_x_continuous(breaks=seq(-80000,80000,80000),labels=c("-80K", "TSS DEGs","80K"))
-  
+
   #--------------------------together
-  
+
   pp<-grid.arrange(pm, ps, ncol=1)
 pp
 
@@ -291,14 +350,14 @@ read_tsv("data_figures/DAR_aroundH3K27ac_Mes_20K.txt")->dar_enh
 pmd<- ggplot(dar_enh, aes(bin,line))+
   geom_line(color="blue",size=1) +
   ylim(0, 200)+
- #ggtile("DARM normalised counts around H3K27acMes") 
-  
+ #ggtile("DARM normalised counts around H3K27acMes")
+
   xlab(" ")+
   ylab("normalised DAR counts ")+
   theme_minimal(base_size=13)
 
   pmd<-pmd+scale_x_continuous(breaks=seq(-20,20,20),labels=c("-20K", "H3K27ac","20K"))
-  
+
 ```
 - Fig4. D Right (swapped DARs and H3K27ac)
 
@@ -309,13 +368,13 @@ read_tsv("data_figures/DAR_aroundH3K27ac_Mes_SW_20K.txt")->dar_enh_sw
 pmds<- ggplot(dar_enh_sw, aes(bin,line))+
   geom_line(color="blue",size=1) +
   ylim(0, 200)+
- #ggtile("DAR  normalised counts around H3K27ac") 
+ #ggtile("DAR  normalised counts around H3K27ac")
   xlab(" ")+
   ylab("normalised DAR counts,swapped ")+
   theme_minimal(base_size=13)
 
   pmds<-pmds+scale_x_continuous(breaks=seq(-20,20,20),labels=c("-20K", "H3K27ac","20K"))
-   
+
 
 ```
 -Fig4 D together
@@ -397,7 +456,7 @@ read_tsv("C:/Users/ia1/Documents/R_work/Figures4JDA/data_figures/scatter_point_M
 ppd<- ggplot(dm1, aes(count,line))+
   geom_line(color="cyan",size=2) +
   geom_point(data = dm2, color = "cyan", size=2) +# re-define data and overwrite top layer inheritance
-  
+
   xlim(0, 15)+
   #ggtitle("Correlation of frequency of similarly accessible regions\n and average gene expression, r=0.07, TSS vicinity=80K \n Similarly High Expressed") +
   xlab("H3K27ac counts") + ylab("average GE ")+
@@ -423,13 +482,13 @@ vic_corr%>%
 ## # A tibble: 6 x 3
 ##   vicinity  corr layer
 ##      <dbl> <dbl> <chr>
-## 1       10  0.53 Ect  
-## 2       20  0.75 Ect  
-## 3       40  0.84 Ect  
-## 4       80  0.67 Ect  
-## 5      120  0.6  Ect  
+## 1       10  0.53 Ect
+## 2       20  0.75 Ect
+## 3       40  0.84 Ect
+## 4       80  0.67 Ect
+## 5      120  0.6  Ect
 ## 6      160  0.71 Ect
-pc <- ggplot(vic_corr1, aes(x=vicinity, y=corr, colour=set)) + 
+pc <- ggplot(vic_corr1, aes(x=vicinity, y=corr, colour=set)) +
   geom_line(size=0.5,show.legend = FALSE)+
   scale_colour_manual(values=c("blue"))+
 
@@ -439,10 +498,10 @@ pc <- ggplot(vic_corr1, aes(x=vicinity, y=corr, colour=set)) +
   xlab("TSS vicinity") + ylab("correlation")+
  #geom_smooth(size=2, show.legend = FALSE)
  geom_smooth(size=2,show.legend = FALSE)
-  
+
   pc<-pc+scale_x_continuous(breaks=seq(0,300,100),labels=c("TSS", "100K","200K","300K"))
   pc
-  
+
 #pc+theme(panel.background = element_rect(fill = "white", colour = "grey50"))
   grid.arrange(pd,ps, pc,nrow=1)
 
@@ -458,7 +517,7 @@ head(vic_corr)
 vic_corr%>%
   filter(layer=='Mes')->vic_corrM
 
-pcc <- ggplot(vic_corrM, aes(x=vicinity, y=corr, colour=layer)) + 
+pcc <- ggplot(vic_corrM, aes(x=vicinity, y=corr, colour=layer)) +
   #geom_line(size=1)+
   scale_colour_manual(values=c("cyan","magenta"))+
 
@@ -469,7 +528,7 @@ pcc <- ggplot(vic_corrM, aes(x=vicinity, y=corr, colour=layer)) +
   geom_smooth(size=2, show.legend = FALSE)
 
 pcc<-pcc+scale_x_continuous(breaks=seq(0,300,100),labels=c("TSS", "100K","200K","300K"))
-  
+
   #pcc-----------------together
   grid.arrange(ppd, pcc,nrow=1)
 
@@ -479,12 +538,12 @@ pcc<-pcc+scale_x_continuous(breaks=seq(0,300,100),labels=c("TSS", "100K","200K",
 ```{r}
 dmr_enh<-read_tsv("data_figures/DMR_end_H3k27ac_End_20K_data.txt")
 
-pdmr_end_enh <- ggplot(dmr_enh, aes(x=bin, y=count)) + 
+pdmr_end_enh <- ggplot(dmr_enh, aes(x=bin, y=count)) +
   geom_line(colour="cyan",size=1,show.legend = FALSE)+
   theme_classic(base_size=13)+
   xlab(" ") +
   ylab("DMR count")
- 
+
   pdmr_end_enh<-pdmr_end_enh+scale_x_continuous(breaks=seq(-10000,10000,10000),labels=c("-10K", "H3K27ac","10K"))
  pdmr_end_enh
 
@@ -493,13 +552,13 @@ pdmr_end_enh <- ggplot(dmr_enh, aes(x=bin, y=count)) +
 ```{r}
 
 dmr_dar<-read_tsv("data_figures/DMR_end_DAR_End_20K_data.txt")
-pdmr_end_dar <- ggplot(dmr_dar, aes(x=bin, y=count)) + 
+pdmr_end_dar <- ggplot(dmr_dar, aes(x=bin, y=count)) +
   geom_line(colour="black",size=1,show.legend = FALSE)+
   theme_classic(base_size=13)+
   #xlab("H3K27ac vicinity") +
   ylab("DMR count")+
   xlab("")
- 
+
   pdmr_end_dar<-pdmr_end_dar+scale_x_continuous(breaks=seq(-10000,10000,10000),labels=c("-10K", "DAR","10K"))
  #pdmr_end
 
@@ -507,7 +566,7 @@ pdmr_end_dar <- ggplot(dmr_dar, aes(x=bin, y=count)) +
 -Fig6A together
 ```{r}
 
- 
+
 pdmr<-grid.arrange(pdmr_end_dar, pdmr_end_enh, nrow=1)
 pdmr
 
@@ -558,4 +617,3 @@ wilcox.test(x, y, alternative = "g")
 ks.test(x, y, alternative = "l")
 
 ```
-
